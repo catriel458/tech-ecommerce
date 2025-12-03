@@ -6,7 +6,7 @@ import { prisma } from "@/lib/prisma";
 // PUT - Actualizar producto
 export async function PUT(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -15,11 +15,12 @@ export async function PUT(
       return NextResponse.json({ error: "No autorizado" }, { status: 403 });
     }
 
+    const { id } = await params; // ← Await params
     const body = await request.json();
     const { nombre, descripcion, precio, stock, imagen, categoria } = body;
 
     const producto = await prisma.producto.update({
-      where: { id: params.id },
+      where: { id },
       data: {
         nombre,
         descripcion,
@@ -43,7 +44,7 @@ export async function PUT(
 // DELETE - Eliminar producto
 export async function DELETE(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -52,8 +53,10 @@ export async function DELETE(
       return NextResponse.json({ error: "No autorizado" }, { status: 403 });
     }
 
+    const { id } = await params; // ← Await params
+
     await prisma.producto.delete({
-      where: { id: params.id },
+      where: { id },
     });
 
     return NextResponse.json({ message: "Producto eliminado" });

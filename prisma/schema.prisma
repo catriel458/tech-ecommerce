@@ -1,0 +1,81 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Modelo de Usuario
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String
+  nombre    String
+  role      Role     @default(USER)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  // Relación con carrito
+  carrito   CarritoItem[]
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+// Modelo de Producto
+model Producto {
+  id          String   @id @default(cuid())
+  nombre      String
+  descripcion String
+  precio      Float
+  stock       Int
+  imagen      String?
+  categoria   Categoria
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  // Relación con items del carrito
+  carritoItems CarritoItem[]
+}
+
+enum Categoria {
+  PROCESADORES
+  PLACAS_MADRE
+  MEMORIA_RAM
+  TARJETAS_GRAFICAS
+  ALMACENAMIENTO
+  FUENTES
+  GABINETES
+  REFRIGERACION
+  MONITORES
+  TECLADOS
+  MOUSE
+  AURICULARES
+  SILLAS_GAMING
+  NOTEBOOKS
+  PC_ARMADAS
+  STREAMING
+  REDES
+  ACCESORIOS
+}
+
+// Modelo de Item del Carrito
+model CarritoItem {
+  id         String   @id @default(cuid())
+  cantidad   Int      @default(1)
+  
+  // Relaciones
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  productoId String
+  producto   Producto @relation(fields: [productoId], references: [id], onDelete: Cascade)
+  
+  createdAt  DateTime @default(now())
+  
+  @@unique([userId, productoId])
+}

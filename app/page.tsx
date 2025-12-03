@@ -62,11 +62,6 @@ export default function HomePage() {
     fetchProductos();
   }, [categoriaSeleccionada, busqueda, precioMin, precioMax]);
 
-  const handleAddToCart = (productoId: string) => {
-    // TODO: Implementar lógica del carrito
-    console.log("Agregar al carrito:", productoId);
-  };
-
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       {/* Header */}
@@ -171,7 +166,6 @@ export default function HomePage() {
               <ProductCard
                 key={producto.id}
                 {...producto}
-                onAddToCart={() => handleAddToCart(producto.id)}
               />
             ))}
           </div>

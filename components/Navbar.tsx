@@ -3,9 +3,11 @@
 import { useSession, signOut } from "next-auth/react";
 import Link from "next/link";
 import { ShoppingCart, User, LogOut, Home, Settings } from "lucide-react";
+import { useCart } from "@/contexts/CartContext";
 
 export default function Navbar() {
   const { data: session, status } = useSession();
+  const { itemCount } = useCart();
 
   return (
     <nav className="bg-gray-900 text-white shadow-lg">
@@ -52,13 +54,18 @@ export default function Navbar() {
                   </Link>
                 )}
 
-                {/* Carrito */}
+                {/* Carrito con contador */}
                 <Link
                   href="/carrito"
-                  className="flex items-center space-x-1 hover:text-blue-400 transition"
+                  className="flex items-center space-x-1 hover:text-blue-400 transition relative"
                 >
                   <ShoppingCart size={20} />
                   <span>Carrito</span>
+                  {itemCount > 0 && (
+                    <span className="absolute -top-2 -right-2 bg-red-600 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                      {itemCount}
+                    </span>
+                  )}
                 </Link>
 
                 {/* Logout */}

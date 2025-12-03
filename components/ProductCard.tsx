@@ -2,6 +2,8 @@
 
 import Image from "next/image";
 import { ShoppingCart } from "lucide-react";
+import { useCart } from "@/contexts/CartContext";
+import { useState } from "react";
 
 interface ProductCardProps {
   id: string;
@@ -11,23 +13,31 @@ interface ProductCardProps {
   imagen: string | null;
   stock: number;
   categoria: string;
-  onAddToCart?: () => void;
 }
 
 export default function ProductCard({
+  id,
   nombre,
   descripcion,
   precio,
   imagen,
   stock,
   categoria,
-  onAddToCart,
 }: ProductCardProps) {
+  const { addItem } = useCart();
+  const [agregado, setAgregado] = useState(false);
+
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat("es-AR", {
       style: "currency",
       currency: "ARS",
     }).format(price);
+  };
+
+  const handleAddToCart = () => {
+    addItem({ id, nombre, precio, imagen });
+    setAgregado(true);
+    setTimeout(() => setAgregado(false), 2000);
   };
 
   return (
@@ -69,12 +79,22 @@ export default function ProductCard({
 
         {/* Botón de agregar al carrito */}
         <button
-          onClick={onAddToCart}
+          onClick={handleAddToCart}
           disabled={stock === 0}
-          className="w-full flex items-center justify-center space-x-2 bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded transition disabled:bg-gray-400 disabled:cursor-not-allowed"
+          className={`w-full flex items-center justify-center space-x-2 py-2 px-4 rounded transition ${
+            agregado
+              ? "bg-green-600 hover:bg-green-700"
+              : "bg-blue-600 hover:bg-blue-700"
+          } text-white disabled:bg-gray-400 disabled:cursor-not-allowed`}
         >
           <ShoppingCart size={20} />
-          <span>{stock > 0 ? "Agregar al carrito" : "Sin stock"}</span>
+          <span>
+            {stock === 0
+              ? "Sin stock"
+              : agregado
+              ? "¡Agregado!"
+              : "Agregar al carrito"}
+          </span>
         </button>
       </div>
     </div>

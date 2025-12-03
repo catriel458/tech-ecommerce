@@ -1,167 +1,182 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
-import Link from "next/link";
+import { useEffect, useState } from "react";
+import ProductCard from "@/components/ProductCard";
+import { Search } from "lucide-react";
 
-export default function RegisterPage() {
-  const [nombre, setNombre] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-  const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
-  const router = useRouter();
+interface Producto {
+  id: string;
+  nombre: string;
+  descripcion: string;
+  precio: number;
+  stock: number;
+  imagen: string | null;
+  categoria: string;
+}
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+const CATEGORIAS = [
+  "TODAS",
+  "PROCESADORES",
+  "PLACAS_MADRE",
+  "MEMORIA_RAM",
+  "TARJETAS_GRAFICAS",
+  "ALMACENAMIENTO",
+  "FUENTES",
+  "GABINETES",
+  "REFRIGERACION",
+  "MONITORES",
+  "TECLADOS",
+  "MOUSE",
+  "AURICULARES",
+];
+
+export default function HomePage() {
+  const [productos, setProductos] = useState<Producto[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [categoriaSeleccionada, setCategoriaSeleccionada] = useState("TODAS");
+  const [busqueda, setBusqueda] = useState("");
+  const [precioMin, setPrecioMin] = useState("");
+  const [precioMax, setPrecioMax] = useState("");
+
+  const fetchProductos = async () => {
     setLoading(true);
-    setError("");
-
-    // Validaciones
-    if (password !== confirmPassword) {
-      setError("Las contraseñas no coinciden");
-      setLoading(false);
-      return;
-    }
-
-    if (password.length < 6) {
-      setError("La contraseña debe tener al menos 6 caracteres");
-      setLoading(false);
-      return;
-    }
-
     try {
-      const response = await fetch("/api/auth/register", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          nombre,
-          email,
-          password,
-        }),
-      });
+      const params = new URLSearchParams();
+      if (categoriaSeleccionada !== "TODAS")
+        params.append("categoria", categoriaSeleccionada);
+      if (busqueda) params.append("busqueda", busqueda);
+      if (precioMin) params.append("precioMin", precioMin);
+      if (precioMax) params.append("precioMax", precioMax);
 
+      const response = await fetch(`/api/productos?${params.toString()}`);
       const data = await response.json();
-
-      if (!response.ok) {
-        setError(data.error || "Error al registrar usuario");
-        setLoading(false);
-        return;
-      }
-
-      // Registro exitoso, redirigir al login
-      router.push("/login?registered=true");
+      setProductos(data);
     } catch (error) {
-      setError("Ocurrió un error. Intenta nuevamente.");
+      console.error("Error al cargar productos:", error);
+    } finally {
       setLoading(false);
     }
   };
 
+  useEffect(() => {
+    fetchProductos();
+  }, [categoriaSeleccionada, busqueda, precioMin, precioMax]);
+
+  const handleAddToCart = (productoId: string) => {
+    // TODO: Implementar lógica del carrito
+    console.log("Agregar al carrito:", productoId);
+  };
+
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8">
-        <div>
-          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-            Crear Cuenta
-          </h2>
-          <p className="mt-2 text-center text-sm text-gray-600">
-            O{" "}
-            <Link
-              href="/login"
-              className="font-medium text-blue-600 hover:text-blue-500"
-            >
-              inicia sesión si ya tienes cuenta
-            </Link>
-          </p>
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      {/* Header */}
+      <div className="mb-8">
+        <h1 className="text-4xl font-bold text-gray-900 mb-2">
+          Productos de Hardware
+        </h1>
+        <p className="text-gray-600">
+          Encuentra los mejores componentes para tu PC
+        </p>
+      </div>
+
+      {/* Filtros */}
+      <div className="bg-white rounded-lg shadow-md p-6 mb-8">
+        {/* Búsqueda */}
+        <div className="mb-4">
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Buscar productos
+          </label>
+          <div className="relative">
+            <Search
+              className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+              size={20}
+            />
+            <input
+              type="text"
+              placeholder="Buscar por nombre o descripción..."
+              value={busqueda}
+              onChange={(e) => setBusqueda(e.target.value)}
+              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            />
+          </div>
         </div>
 
-        <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
-          <div className="rounded-md shadow-sm space-y-4">
-            <div>
-              <label htmlFor="nombre" className="sr-only">
-                Nombre completo
-              </label>
-              <input
-                id="nombre"
-                name="nombre"
-                type="text"
-                required
-                value={nombre}
-                onChange={(e) => setNombre(e.target.value)}
-                className="appearance-none rounded relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
-                placeholder="Nombre completo"
-              />
-            </div>
-            <div>
-              <label htmlFor="email" className="sr-only">
-                Email
-              </label>
-              <input
-                id="email"
-                name="email"
-                type="email"
-                autoComplete="email"
-                required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="appearance-none rounded relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
-                placeholder="Email"
-              />
-            </div>
-            <div>
-              <label htmlFor="password" className="sr-only">
-                Contraseña
-              </label>
-              <input
-                id="password"
-                name="password"
-                type="password"
-                autoComplete="new-password"
-                required
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="appearance-none rounded relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
-                placeholder="Contraseña (mínimo 6 caracteres)"
-              />
-            </div>
-            <div>
-              <label htmlFor="confirmPassword" className="sr-only">
-                Confirmar contraseña
-              </label>
-              <input
-                id="confirmPassword"
-                name="confirmPassword"
-                type="password"
-                autoComplete="new-password"
-                required
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                className="appearance-none rounded relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
-                placeholder="Confirmar contraseña"
-              />
-            </div>
-          </div>
+        {/* Categorías */}
+        <div className="mb-4">
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Categoría
+          </label>
+          <select
+            value={categoriaSeleccionada}
+            onChange={(e) => setCategoriaSeleccionada(e.target.value)}
+            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          >
+            {CATEGORIAS.map((cat) => (
+              <option key={cat} value={cat}>
+                {cat.replace(/_/g, " ")}
+              </option>
+            ))}
+          </select>
+        </div>
 
-          {error && (
-            <div className="rounded-md bg-red-50 p-4">
-              <p className="text-sm text-red-800">{error}</p>
-            </div>
-          )}
-
+        {/* Filtros de precio */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <button
-              type="submit"
-              disabled={loading}
-              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:bg-gray-400 disabled:cursor-not-allowed"
-            >
-              {loading ? "Registrando..." : "Crear cuenta"}
-            </button>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Precio mínimo
+            </label>
+            <input
+              type="number"
+              placeholder="$0"
+              value={precioMin}
+              onChange={(e) => setPrecioMin(e.target.value)}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            />
           </div>
-        </form>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Precio máximo
+            </label>
+            <input
+              type="number"
+              placeholder="$999999"
+              value={precioMax}
+              onChange={(e) => setPrecioMax(e.target.value)}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            />
+          </div>
+        </div>
       </div>
+
+      {/* Grid de productos */}
+      {loading ? (
+        <div className="text-center py-12">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Cargando productos...</p>
+        </div>
+      ) : productos.length === 0 ? (
+        <div className="text-center py-12">
+          <p className="text-gray-600 text-lg">
+            No se encontraron productos con los filtros seleccionados
+          </p>
+        </div>
+      ) : (
+        <>
+          <div className="mb-4 text-gray-600">
+            {productos.length} producto{productos.length !== 1 ? "s" : ""}{" "}
+            encontrado{productos.length !== 1 ? "s" : ""}
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            {productos.map((producto) => (
+              <ProductCard
+                key={producto.id}
+                {...producto}
+                onAddToCart={() => handleAddToCart(producto.id)}
+              />
+            ))}
+          </div>
+        </>
+      )}
     </div>
   );
 }

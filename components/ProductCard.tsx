@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import { ShoppingCart, Eye, Zap } from "lucide-react";
 import { useCart } from "@/contexts/CartContext";
@@ -67,12 +66,10 @@ export default function ProductCard({
       <Link href={`/producto/${id}`} className="block relative">
         <div className="relative h-64 bg-gray-100 overflow-hidden">
           {imagen ? (
-            <Image
+            <img
               src={imagen}
               alt={nombre}
-              fill
-              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-              className="object-cover group-hover:scale-105 transition-transform duration-300"
+              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
             />
           ) : (
             <div className="flex items-center justify-center h-full text-gray-400">

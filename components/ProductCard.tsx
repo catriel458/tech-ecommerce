@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { ShoppingCart, Eye, Zap } from "lucide-react";
+import { ShoppingCart } from "lucide-react";
 import { useCart } from "@/contexts/CartContext";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
@@ -35,14 +35,10 @@ export default function ProductCard({
     return new Intl.NumberFormat("es-AR", {
       style: "currency",
       currency: "ARS",
-      minimumFractionDigits: 0,
     }).format(price);
   };
 
-  const handleAddToCart = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-
+  const handleAddToCart = () => {
     if (!session) {
       toast.error("Debes iniciar sesión para agregar productos al carrito", {
         icon: "🔒",
@@ -62,84 +58,56 @@ export default function ProductCard({
   };
 
   return (
-    <div className="group bg-white rounded-lg shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden border border-gray-200">
-      {/* Imagen */}
-      <Link href={`/producto/${id}`} className="block relative">
-        <div className="relative h-64 bg-gray-100 overflow-hidden">
-          {imagen ? (
-            <Image
-              src={imagen}
-              alt={nombre}
-              fill
-              className="object-cover group-hover:scale-105 transition-transform duration-300"
-              unoptimized
-            />
-          ) : (
-            <div className="flex items-center justify-center h-full text-gray-400">
-              Sin imagen
-            </div>
-          )}
-          
-          {/* Overlay en hover */}
-          <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-300 flex items-center justify-center">
-            <div className="transform translate-y-4 group-hover:translate-y-0 opacity-0 group-group-hover:opacity-100 transition-all duration-300">
-              <div className="bg-white rounded-full p-3">
-                <Eye className="text-blue-600" size={24} />
-              </div>
-            </div>
-          </div>
-
+    <div className="bg-white rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 overflow-hidden group">
+      {/* Imagen con link a detalle */}
+      <Link href={`/producto/${id}`}>
+        <div className="relative h-64 bg-gray-200 overflow-hidden cursor-pointer">
+          <Image
+            src={imagen || "/placeholder-product.png"}
+            alt={nombre}
+            fill
+            className="object-cover group-hover:scale-105 transition-transform duration-300"
+          />
           {/* Badge de categoría */}
-          <div className="absolute top-3 right-3 bg-blue-600 text-white px-3 py-1 rounded-full text-xs font-semibold">
+          <div className="absolute top-2 right-2 bg-blue-600 text-white px-2 py-1 rounded text-xs">
             {categoria.replace(/_/g, " ")}
           </div>
-
-          {/* Badge de sin stock */}
           {stock === 0 && (
-            <div className="absolute inset-0 bg-black bg-opacity-60 flex items-center justify-center">
-              <span className="bg-red-600 text-white px-6 py-2 rounded-full text-lg font-bold">
-                AGOTADO
-              </span>
-            </div>
-          )}
-
-          {/* Badge de stock bajo */}
-          {stock > 0 && stock <= 5 && (
-            <div className="absolute top-3 left-3 bg-orange-500 text-white px-3 py-1 rounded-full text-xs font-semibold flex items-center space-x-1">
-              <Zap size={14} />
-              <span>¡Últimas {stock}!</span>
+            <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+              <span className="text-white text-xl font-bold">SIN STOCK</span>
             </div>
           )}
         </div>
       </Link>
 
       {/* Contenido */}
-      <div className="p-5">
+      <div className="p-4">
         <Link href={`/producto/${id}`}>
-          <h3 className="text-lg font-bold text-gray-900 mb-2 line-clamp-1 group-hover:text-blue-600 transition cursor-pointer">
+          <h3 className="text-lg font-semibold text-gray-900 mb-2 line-clamp-1 hover:text-blue-600 transition cursor-pointer">
             {nombre}
           </h3>
         </Link>
-        
-        <p className="text-gray-600 text-sm mb-4 line-clamp-2 leading-relaxed">
+        <p className="text-gray-600 text-sm mb-4 line-clamp-2">
           {descripcion}
         </p>
 
-        {/* Precio */}
-        <div className="mb-4">
-          <p className="text-3xl font-bold text-blue-600">
-            {formatPrice(precio)}
-          </p>
-          <p className="text-xs text-gray-500 mt-1">
-            {stock > 0 ? `${stock} disponibles` : "Sin stock"}
-          </p>
+        {/* Precio y Stock */}
+        <div className="flex items-center justify-between mb-4">
+          <div>
+            <p className="text-2xl font-bold text-blue-600">
+              {formatPrice(precio)}
+            </p>
+            <p className="text-xs text-gray-500">
+              {stock > 0 ? `Stock: ${stock}` : "Sin stock"}
+            </p>
+          </div>
         </div>
 
         {/* Botón de agregar al carrito */}
         <button
           onClick={handleAddToCart}
           disabled={stock === 0}
-          className="w-full flex items-center justify-center space-x-2 bg-blue-600 hover:bg-blue-700 text-white py-3 px-4 rounded-lg font-semibold transition-all duration-200 disabled:bg-gray-400 disabled:cursor-not-allowed"
+          className="w-full flex items-center justify-center space-x-2 bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded transition disabled:bg-gray-400 disabled:cursor-not-allowed"
         >
           <ShoppingCart size={20} />
           <span>{stock > 0 ? "Agregar al carrito" : "Sin stock"}</span>

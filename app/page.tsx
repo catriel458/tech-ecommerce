@@ -57,7 +57,7 @@ export default function HomePage() {
       const response = await fetch(`/api/productos?${params.toString()}`);
       const data = await response.json();
       setProductos(data);
-      setCurrentPage(1); // Reset a primera página cuando cambian filtros
+      setCurrentPage(1);
     } catch (error) {
       console.error("Error al cargar productos:", error);
     } finally {
@@ -68,12 +68,11 @@ export default function HomePage() {
   useEffect(() => {
     const debounce = setTimeout(() => {
       fetchProductos();
-    }, 500); // Debounce de 500ms para el buscador
+    }, 500);
 
     return () => clearTimeout(debounce);
   }, [categoriaSeleccionada, busqueda, precioMin, precioMax]);
 
-  // Calcular productos para la página actual
   const indexOfLastProduct = currentPage * ITEMS_PER_PAGE;
   const indexOfFirstProduct = indexOfLastProduct - ITEMS_PER_PAGE;
   const currentProducts = productos.slice(indexOfFirstProduct, indexOfLastProduct);
@@ -85,14 +84,12 @@ export default function HomePage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+    <div className="min-h-screen bg-gray-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Hero Section */}
         <div className="mb-12 text-center">
           <h1 className="text-5xl md:text-6xl font-extrabold text-gray-900 mb-4">
-            <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-purple-600">
-              Hardware Premium
-            </span>
+            Hardware Premium
           </h1>
           <p className="text-xl text-gray-600 max-w-2xl mx-auto">
             Los mejores componentes para armar tu PC ideal
@@ -101,9 +98,9 @@ export default function HomePage() {
 
         {/* Barra de búsqueda principal */}
         <div className="mb-8 max-w-4xl mx-auto">
-          <div className="relative group">
+          <div className="relative">
             <Search
-              className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 group-focus-within:text-blue-600 transition"
+              className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400"
               size={24}
             />
             <input
@@ -111,7 +108,7 @@ export default function HomePage() {
               placeholder="Busca procesadores, tarjetas gráficas, monitores..."
               value={busqueda}
               onChange={(e) => setBusqueda(e.target.value)}
-              className="w-full pl-12 pr-4 py-4 text-lg border-2 border-gray-200 rounded-2xl focus:ring-4 focus:ring-blue-500 focus:ring-opacity-20 focus:border-blue-500 transition shadow-sm hover:shadow-md"
+              className="w-full pl-12 pr-4 py-4 text-lg border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
             />
           </div>
         </div>
@@ -120,7 +117,7 @@ export default function HomePage() {
         <div className="lg:hidden mb-6">
           <button
             onClick={() => setShowFilters(!showFilters)}
-            className="w-full flex items-center justify-center space-x-2 bg-white border-2 border-gray-200 py-3 px-6 rounded-xl shadow-sm hover:shadow-md transition"
+            className="w-full flex items-center justify-center space-x-2 bg-white border border-gray-300 py-3 px-6 rounded-lg hover:bg-gray-50 transition"
           >
             <SlidersHorizontal size={20} />
             <span className="font-semibold">Filtros</span>
@@ -135,7 +132,7 @@ export default function HomePage() {
             } space-y-6`}
           >
             {/* Card de filtros */}
-            <div className="bg-white rounded-2xl shadow-lg p-6 sticky top-4">
+            <div className="bg-white rounded-lg shadow-md p-6 sticky top-4">
               <div className="flex items-center space-x-2 mb-6">
                 <SlidersHorizontal className="text-blue-600" size={24} />
                 <h2 className="text-2xl font-bold text-gray-900">Filtros</h2>
@@ -151,10 +148,10 @@ export default function HomePage() {
                     <button
                       key={cat}
                       onClick={() => setCategoriaSeleccionada(cat)}
-                      className={`w-full text-left px-4 py-2.5 rounded-lg transition ${
+                      className={`w-full text-left px-4 py-2.5 rounded-lg transition font-medium ${
                         categoriaSeleccionada === cat
-                          ? "bg-blue-600 text-white shadow-md"
-                          : "bg-gray-50 text-gray-700 hover:bg-gray-100"
+                          ? "bg-blue-600 text-white"
+                          : "bg-gray-100 text-gray-700 hover:bg-gray-200"
                       }`}
                     >
                       {cat.replace(/_/g, " ")}
@@ -174,14 +171,14 @@ export default function HomePage() {
                     placeholder="Precio mínimo"
                     value={precioMin}
                     onChange={(e) => setPrecioMin(e.target.value)}
-                    className="w-full px-4 py-2.5 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
+                    className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                   />
                   <input
                     type="number"
                     placeholder="Precio máximo"
                     value={precioMax}
                     onChange={(e) => setPrecioMax(e.target.value)}
-                    className="w-full px-4 py-2.5 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
+                    className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                   />
                 </div>
               </div>
@@ -209,7 +206,7 @@ export default function HomePage() {
           {/* Grid de productos */}
           <div className="lg:col-span-3">
             {/* Header de resultados */}
-            <div className="flex items-center justify-between mb-6 bg-white rounded-xl shadow-sm p-4">
+            <div className="flex items-center justify-between mb-6 bg-white rounded-lg shadow-sm p-4">
               <div>
                 <p className="text-gray-900 font-semibold">
                   {productos.length} producto{productos.length !== 1 ? "s" : ""}{" "}
@@ -232,7 +229,7 @@ export default function HomePage() {
                 </p>
               </div>
             ) : currentProducts.length === 0 ? (
-              <div className="text-center py-20 bg-white rounded-2xl shadow-sm">
+              <div className="text-center py-20 bg-white rounded-lg shadow-sm">
                 <div className="text-6xl mb-4">🔍</div>
                 <h3 className="text-2xl font-bold text-gray-900 mb-2">
                   No se encontraron productos
@@ -257,7 +254,7 @@ export default function HomePage() {
                       <button
                         onClick={() => paginate(currentPage - 1)}
                         disabled={currentPage === 1}
-                        className="p-2 rounded-lg bg-white border-2 border-gray-200 disabled:opacity-50 disabled:cursor-not-allowed hover:border-blue-600 hover:text-blue-600 transition"
+                        className="p-2 rounded-lg bg-white border border-gray-300 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 transition"
                       >
                         <ChevronLeft size={20} />
                       </button>
@@ -265,7 +262,6 @@ export default function HomePage() {
                       {/* Números de página */}
                       {Array.from({ length: totalPages }, (_, i) => i + 1).map(
                         (number) => {
-                          // Mostrar primera página, última página, página actual y adyacentes
                           if (
                             number === 1 ||
                             number === totalPages ||
@@ -278,8 +274,8 @@ export default function HomePage() {
                                 onClick={() => paginate(number)}
                                 className={`px-4 py-2 rounded-lg font-semibold transition ${
                                   currentPage === number
-                                    ? "bg-blue-600 text-white shadow-md"
-                                    : "bg-white border-2 border-gray-200 hover:border-blue-600 hover:text-blue-600"
+                                    ? "bg-blue-600 text-white"
+                                    : "bg-white border border-gray-300 hover:bg-gray-50"
                                 }`}
                               >
                                 {number}
@@ -303,7 +299,7 @@ export default function HomePage() {
                       <button
                         onClick={() => paginate(currentPage + 1)}
                         disabled={currentPage === totalPages}
-                        className="p-2 rounded-lg bg-white border-2 border-gray-200 disabled:opacity-50 disabled:cursor-not-allowed hover:border-blue-600 hover:text-blue-600 transition"
+                        className="p-2 rounded-lg bg-white border border-gray-300 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 transition"
                       >
                         <ChevronRight size={20} />
                       </button>

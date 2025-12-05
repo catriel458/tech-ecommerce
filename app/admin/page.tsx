@@ -1,10 +1,11 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Plus, Edit, Trash2, Search } from "lucide-react";
+import { Plus, Edit, Trash2, Search, TrendingUp } from "lucide-react";
 import Modal from "@/components/Modal";
 import Image from "next/image";
-import toast from "react-hot-toast"; // Agregá esto al inicio
+import Link from "next/link";
+import toast from "react-hot-toast";
 
 interface Producto {
   id: string;
@@ -101,65 +102,62 @@ export default function AdminPage() {
     setEditingProduct(null);
   };
 
-  // Actualizar handleSubmit
-const handleSubmit = async (e: React.FormEvent) => {
-  e.preventDefault();
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
 
-  try {
-    const url = editingProduct
-      ? `/api/admin/productos/${editingProduct.id}`
-      : "/api/admin/productos";
+    try {
+      const url = editingProduct
+        ? `/api/admin/productos/${editingProduct.id}`
+        : "/api/admin/productos";
 
-    const method = editingProduct ? "PUT" : "POST";
+      const method = editingProduct ? "PUT" : "POST";
 
-    const response = await fetch(url, {
-      method,
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(formData),
-    });
+      const response = await fetch(url, {
+        method,
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
+      });
 
-    if (response.ok) {
-      await fetchProductos();
-      handleCloseModal();
-      toast.success(
-        editingProduct
-          ? "Producto actualizado exitosamente"
-          : "Producto creado exitosamente",
-        { icon: "✅" }
-      );
-    } else {
-      const error = await response.json();
-      toast.error(`Error: ${error.error}`);
+      if (response.ok) {
+        await fetchProductos();
+        handleCloseModal();
+        toast.success(
+          editingProduct
+            ? "Producto actualizado exitosamente"
+            : "Producto creado exitosamente",
+          { icon: "✅" }
+        );
+      } else {
+        const error = await response.json();
+        toast.error(`Error: ${error.error}`);
+      }
+    } catch (error) {
+      console.error("Error al guardar producto:", error);
+      toast.error("Error al guardar producto");
     }
-  } catch (error) {
-    console.error("Error al guardar producto:", error);
-    toast.error("Error al guardar producto");
-  }
-};
+  };
 
-  
-  // Actualizar handleDelete
-const handleDelete = async (id: string) => {
-  if (!confirm("¿Estás seguro de eliminar este producto?")) return;
+  const handleDelete = async (id: string) => {
+    if (!confirm("¿Estás seguro de eliminar este producto?")) return;
 
-  try {
-    const response = await fetch(`/api/admin/productos/${id}`, {
-      method: "DELETE",
-    });
+    try {
+      const response = await fetch(`/api/admin/productos/${id}`, {
+        method: "DELETE",
+      });
 
-    if (response.ok) {
-      await fetchProductos();
-      toast.success("Producto eliminado exitosamente", { icon: "🗑️" });
-    } else {
+      if (response.ok) {
+        await fetchProductos();
+        toast.success("Producto eliminado exitosamente", { icon: "🗑️" });
+      } else {
+        toast.error("Error al eliminar producto");
+      }
+    } catch (error) {
+      console.error("Error al eliminar producto:", error);
       toast.error("Error al eliminar producto");
     }
-  } catch (error) {
-    console.error("Error al eliminar producto:", error);
-    toast.error("Error al eliminar producto");
-  }
-};
+  };
 
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat("es-AR", {
@@ -200,14 +198,24 @@ const handleDelete = async (id: string) => {
             />
           </div>
 
-          {/* Botón agregar */}
-          <button
-            onClick={() => handleOpenModal()}
-            className="flex items-center space-x-2 bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg transition"
-          >
-            <Plus size={20} />
-            <span>Nuevo Producto</span>
-          </button>
+          {/* Botones de acción */}
+          <div className="flex gap-3">
+            <Link
+              href="/admin/dashboard"
+              className="flex items-center space-x-2 bg-purple-600 hover:bg-purple-700 text-white px-6 py-2 rounded-lg transition"
+            >
+              <TrendingUp size={20} />
+              <span>Estadísticas</span>
+            </Link>
+            
+            <button
+              onClick={() => handleOpenModal()}
+              className="flex items-center space-x-2 bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg transition"
+            >
+              <Plus size={20} />
+              <span>Nuevo Producto</span>
+            </button>
+          </div>
         </div>
       </div>
 

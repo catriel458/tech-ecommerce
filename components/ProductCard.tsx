@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { ShoppingCart, Eye, Zap } from "lucide-react";
 import { useCart } from "@/contexts/CartContext";
@@ -66,10 +67,12 @@ export default function ProductCard({
       <Link href={`/producto/${id}`} className="block relative">
         <div className="relative h-64 bg-gray-100 overflow-hidden">
           {imagen ? (
-            <img
+            <Image
               src={imagen}
               alt={nombre}
-              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+              fill
+              className="object-cover group-hover:scale-105 transition-transform duration-300"
+              unoptimized
             />
           ) : (
             <div className="flex items-center justify-center h-full text-gray-400">
@@ -79,7 +82,7 @@ export default function ProductCard({
           
           {/* Overlay en hover */}
           <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-300 flex items-center justify-center">
-            <div className="transform translate-y-4 group-hover:translate-y-0 opacity-0 group-hover:opacity-100 transition-all duration-300">
+            <div className="transform translate-y-4 group-hover:translate-y-0 opacity-0 group-group-hover:opacity-100 transition-all duration-300">
               <div className="bg-white rounded-full p-3">
                 <Eye className="text-blue-600" size={24} />
               </div>

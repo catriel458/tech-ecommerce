@@ -6,6 +6,7 @@ import Link from "next/link";
 import { Trash2, Plus, Minus, ShoppingBag, ArrowLeft } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import toast from "react-hot-toast";
 
 export default function CarritoPage() {
   const { items, removeItem, updateQuantity, clearCart, total, itemCount } =
@@ -26,7 +27,24 @@ export default function CarritoPage() {
       return;
     }
     // TODO: Implementar proceso de compra
-    alert("Funcionalidad de compra en desarrollo");
+    toast.success("Funcionalidad de compra en desarrollo", {
+      icon: "🚧",
+      duration: 3000,
+    });
+  };
+
+  const handleRemoveItem = (id: string, nombre: string) => {
+    removeItem(id);
+    toast.success(`${nombre} eliminado del carrito`, {
+      icon: "❌",
+    });
+  };
+
+  const handleClearCart = () => {
+    clearCart();
+    toast.success("Carrito vaciado", {
+      icon: "🗑️",
+    });
   };
 
   if (items.length === 0) {
@@ -121,7 +139,7 @@ export default function CarritoPage() {
 
               {/* Botón eliminar */}
               <button
-                onClick={() => removeItem(item.id)}
+                onClick={() => handleRemoveItem(item.id, item.nombre)}
                 className="p-2 text-red-600 hover:bg-red-50 rounded-full transition"
               >
                 <Trash2 size={20} />
@@ -131,7 +149,7 @@ export default function CarritoPage() {
 
           {/* Botón limpiar carrito */}
           <button
-            onClick={clearCart}
+            onClick={handleClearCart}
             className="w-full py-2 text-red-600 hover:bg-red-50 rounded-lg transition border border-red-600"
           >
             Vaciar carrito

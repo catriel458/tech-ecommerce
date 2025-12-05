@@ -1,9 +1,10 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import { ShoppingCart } from "lucide-react";
 import { useCart } from "@/contexts/CartContext";
-import { useState } from "react";
+import toast from "react-hot-toast";
 
 interface ProductCardProps {
   id: string;
@@ -25,7 +26,6 @@ export default function ProductCard({
   categoria,
 }: ProductCardProps) {
   const { addItem } = useCart();
-  const [agregado, setAgregado] = useState(false);
 
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat("es-AR", {
@@ -36,31 +36,42 @@ export default function ProductCard({
 
   const handleAddToCart = () => {
     addItem({ id, nombre, precio, imagen });
-    setAgregado(true);
-    setTimeout(() => setAgregado(false), 2000);
+    toast.success(`${nombre} agregado al carrito`, {
+      duration: 3000,
+      icon: "🛒",
+    });
   };
 
   return (
-    <div className="bg-white rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 overflow-hidden">
-      {/* Imagen */}
-      <div className="relative h-64 bg-gray-200">
-        <Image
-          src={imagen || "/placeholder-product.png"}
-          alt={nombre}
-          fill
-          className="object-cover"
-        />
-        {/* Badge de categoría */}
-        <div className="absolute top-2 right-2 bg-blue-600 text-white px-2 py-1 rounded text-xs">
-          {categoria.replace(/_/g, " ")}
+    <div className="bg-white rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 overflow-hidden group">
+      {/* Imagen con link a detalle */}
+      <Link href={`/producto/${id}`}>
+        <div className="relative h-64 bg-gray-200 overflow-hidden cursor-pointer">
+          <Image
+            src={imagen || "/placeholder-product.png"}
+            alt={nombre}
+            fill
+            className="object-cover group-hover:scale-105 transition-transform duration-300"
+          />
+          {/* Badge de categoría */}
+          <div className="absolute top-2 right-2 bg-blue-600 text-white px-2 py-1 rounded text-xs">
+            {categoria.replace(/_/g, " ")}
+          </div>
+          {stock === 0 && (
+            <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+              <span className="text-white text-xl font-bold">SIN STOCK</span>
+            </div>
+          )}
         </div>
-      </div>
+      </Link>
 
       {/* Contenido */}
       <div className="p-4">
-        <h3 className="text-lg font-semibold text-gray-900 mb-2 line-clamp-1">
-          {nombre}
-        </h3>
+        <Link href={`/producto/${id}`}>
+          <h3 className="text-lg font-semibold text-gray-900 mb-2 line-clamp-1 hover:text-blue-600 transition cursor-pointer">
+            {nombre}
+          </h3>
+        </Link>
         <p className="text-gray-600 text-sm mb-4 line-clamp-2">
           {descripcion}
         </p>
@@ -81,20 +92,10 @@ export default function ProductCard({
         <button
           onClick={handleAddToCart}
           disabled={stock === 0}
-          className={`w-full flex items-center justify-center space-x-2 py-2 px-4 rounded transition ${
-            agregado
-              ? "bg-green-600 hover:bg-green-700"
-              : "bg-blue-600 hover:bg-blue-700"
-          } text-white disabled:bg-gray-400 disabled:cursor-not-allowed`}
+          className="w-full flex items-center justify-center space-x-2 bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded transition disabled:bg-gray-400 disabled:cursor-not-allowed"
         >
           <ShoppingCart size={20} />
-          <span>
-            {stock === 0
-              ? "Sin stock"
-              : agregado
-              ? "¡Agregado!"
-              : "Agregar al carrito"}
-          </span>
+          <span>{stock > 0 ? "Agregar al carrito" : "Sin stock"}</span>
         </button>
       </div>
     </div>

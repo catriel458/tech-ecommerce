@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { Plus, Edit, Trash2, Search } from "lucide-react";
 import Modal from "@/components/Modal";
 import Image from "next/image";
+import toast from "react-hot-toast"; // Agregá esto al inicio
 
 interface Producto {
   id: string;
@@ -100,55 +101,65 @@ export default function AdminPage() {
     setEditingProduct(null);
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  // Actualizar handleSubmit
+const handleSubmit = async (e: React.FormEvent) => {
+  e.preventDefault();
 
-    try {
-      const url = editingProduct
-        ? `/api/admin/productos/${editingProduct.id}`
-        : "/api/admin/productos";
+  try {
+    const url = editingProduct
+      ? `/api/admin/productos/${editingProduct.id}`
+      : "/api/admin/productos";
 
-      const method = editingProduct ? "PUT" : "POST";
+    const method = editingProduct ? "PUT" : "POST";
 
-      const response = await fetch(url, {
-        method,
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(formData),
-      });
+    const response = await fetch(url, {
+      method,
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(formData),
+    });
 
-      if (response.ok) {
-        await fetchProductos();
-        handleCloseModal();
-      } else {
-        const error = await response.json();
-        alert(`Error: ${error.error}`);
-      }
-    } catch (error) {
-      console.error("Error al guardar producto:", error);
-      alert("Error al guardar producto");
+    if (response.ok) {
+      await fetchProductos();
+      handleCloseModal();
+      toast.success(
+        editingProduct
+          ? "Producto actualizado exitosamente"
+          : "Producto creado exitosamente",
+        { icon: "✅" }
+      );
+    } else {
+      const error = await response.json();
+      toast.error(`Error: ${error.error}`);
     }
-  };
+  } catch (error) {
+    console.error("Error al guardar producto:", error);
+    toast.error("Error al guardar producto");
+  }
+};
 
-  const handleDelete = async (id: string) => {
-    if (!confirm("¿Estás seguro de eliminar este producto?")) return;
+  
+  // Actualizar handleDelete
+const handleDelete = async (id: string) => {
+  if (!confirm("¿Estás seguro de eliminar este producto?")) return;
 
-    try {
-      const response = await fetch(`/api/admin/productos/${id}`, {
-        method: "DELETE",
-      });
+  try {
+    const response = await fetch(`/api/admin/productos/${id}`, {
+      method: "DELETE",
+    });
 
-      if (response.ok) {
-        await fetchProductos();
-      } else {
-        alert("Error al eliminar producto");
-      }
-    } catch (error) {
-      console.error("Error al eliminar producto:", error);
-      alert("Error al eliminar producto");
+    if (response.ok) {
+      await fetchProductos();
+      toast.success("Producto eliminado exitosamente", { icon: "🗑️" });
+    } else {
+      toast.error("Error al eliminar producto");
     }
-  };
+  } catch (error) {
+    console.error("Error al eliminar producto:", error);
+    toast.error("Error al eliminar producto");
+  }
+};
 
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat("es-AR", {

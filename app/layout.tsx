@@ -4,6 +4,7 @@ import "./globals.css";
 import Providers from "@/components/Providers";
 import Navbar from "@/components/Navbar";
 import { CartProvider } from "@/contexts/CartContext";
+import { Toaster } from "react-hot-toast";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -24,6 +25,7 @@ export default function RootLayout({
           <CartProvider>
             <Navbar />
             <main className="min-h-screen bg-gray-50">{children}</main>
+            <Toaster position="bottom-right" />
           </CartProvider>
         </Providers>
       </body>

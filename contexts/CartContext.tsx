@@ -1,7 +1,6 @@
 "use client";
 
 import { createContext, useContext, useState, useEffect } from "react";
-import { useSession } from "next-auth/react";
 
 interface CartItem {
   id: string;
@@ -25,49 +24,33 @@ const CartContext = createContext<CartContextType | undefined>(undefined);
 
 export function CartProvider({ children }: { children: React.ReactNode }) {
   const [items, setItems] = useState<CartItem[]>([]);
-  const { data: session, status } = useSession();
 
-  // Obtener clave del carrito según el usuario
-  const getCartKey = () => {
-    if (session?.user?.id) {
-      return `cart_${session.user.id}`;
-    }
-    return "cart_guest";
-  };
-
-  // Cargar carrito del localStorage cuando cambia la sesión
+  // Cargar carrito del localStorage al inicio
   useEffect(() => {
-    if (status === "loading") return;
-
-    const cartKey = getCartKey();
-    const savedCart = localStorage.getItem(cartKey);
-    
+    const savedCart = localStorage.getItem("cart");
     if (savedCart) {
       setItems(JSON.parse(savedCart));
-    } else {
-      setItems([]);
     }
-  }, [session?.user?.id, status]);
+  }, []);
 
   // Guardar carrito en localStorage cada vez que cambia
   useEffect(() => {
-    if (status === "loading") return;
-    
-    const cartKey = getCartKey();
-    localStorage.setItem(cartKey, JSON.stringify(items));
-  }, [items, session?.user?.id, status]);
+    localStorage.setItem("cart", JSON.stringify(items));
+  }, [items]);
 
   const addItem = (newItem: Omit<CartItem, "cantidad">) => {
     setItems((prevItems) => {
       const existingItem = prevItems.find((item) => item.id === newItem.id);
       
       if (existingItem) {
+        // Si ya existe, aumentar cantidad
         return prevItems.map((item) =>
           item.id === newItem.id
             ? { ...item, cantidad: item.cantidad + 1 }
             : item
         );
       } else {
+        // Si no existe, agregarlo con cantidad 1
         return [...prevItems, { ...newItem, cantidad: 1 }];
       }
     });

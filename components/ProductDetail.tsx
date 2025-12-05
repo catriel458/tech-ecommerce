@@ -4,6 +4,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { ArrowLeft, ShoppingCart, Package, Truck } from "lucide-react";
 import { useCart } from "@/contexts/CartContext";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 
 interface ProductDetailProps {
@@ -20,6 +22,8 @@ interface ProductDetailProps {
 
 export default function ProductDetail({ producto }: ProductDetailProps) {
   const { addItem } = useCart();
+  const { data: session } = useSession();
+  const router = useRouter();
 
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat("es-AR", {
@@ -29,6 +33,18 @@ export default function ProductDetail({ producto }: ProductDetailProps) {
   };
 
   const handleAddToCart = () => {
+    // Verificar si está logueado
+    if (!session) {
+      toast.error("Debes iniciar sesión para agregar productos al carrito", {
+        icon: "🔒",
+        duration: 4000,
+      });
+      setTimeout(() => {
+        router.push("/login");
+      }, 1500);
+      return;
+    }
+
     addItem({
       id: producto.id,
       nombre: producto.nombre,

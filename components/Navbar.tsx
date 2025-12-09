@@ -1,50 +1,48 @@
 "use client";
 
-import { useSession, signOut } from "next-auth/react";
 import Link from "next/link";
-import { ShoppingCart, User, LogOut, Home, Settings } from "lucide-react";
+import { useSession, signOut } from "next-auth/react";
+import { ShoppingCart, Settings, LogOut, Heart } from "lucide-react";
 import { useCart } from "@/contexts/CartContext";
+import { useFavorites } from "@/contexts/FavoritesContext";
 
 export default function Navbar() {
-  const { data: session, status } = useSession();
+  const { data: session } = useSession();
   const { itemCount } = useCart();
+  const { favoriteCount } = useFavorites();
 
   return (
     <nav className="bg-gray-900 text-white shadow-lg">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-16">
+        <div className="flex items-center justify-between h-16">
           {/* Logo */}
-          <Link href="/" className="flex items-center space-x-2">
-            <span className="text-2xl font-bold text-blue-500">TechStore</span>
+          <Link href="/" className="text-2xl font-bold text-blue-400 hover:text-blue-300 transition">
+            TechStore
           </Link>
 
-          {/* Links de navegación */}
+          {/* Navigation */}
           <div className="flex items-center space-x-6">
             <Link
               href="/"
               className="flex items-center space-x-1 hover:text-blue-400 transition"
             >
-              <Home size={20} />
               <span>Inicio</span>
             </Link>
 
-            {status === "loading" ? (
-              <div className="text-gray-400">Cargando...</div>
-            ) : session ? (
+            {session ? (
               <>
-                {/* Usuario logueado */}
-                <div className="flex items-center space-x-1 text-gray-300">
-                  <User size={20} />
-                  <span>{session.user.name}</span>
-                  {session.user.role === "ADMIN" && (
-                    <span className="ml-2 px-2 py-1 bg-red-600 text-xs rounded">
+                {/* Nombre de usuario y badge de rol */}
+                <div className="flex items-center space-x-2">
+                  <span className="text-sm">{session.user?.name}</span>
+                  {session.user?.role === "ADMIN" && (
+                    <span className="px-2 py-1 bg-red-600 text-white text-xs font-bold rounded">
                       ADMIN
                     </span>
                   )}
                 </div>
 
-                {/* Link a Admin (solo si es ADMIN) */}
-                {session.user.role === "ADMIN" && (
+                {/* Panel de admin (solo para ADMIN) */}
+                {session.user?.role === "ADMIN" && (
                   <Link
                     href="/admin"
                     className="flex items-center space-x-1 hover:text-blue-400 transition"
@@ -54,15 +52,28 @@ export default function Navbar() {
                   </Link>
                 )}
 
-                {/* Carrito con contador */}
+                {/* Favoritos */}
+                <Link
+                  href="/favoritos"
+                  className="relative flex items-center space-x-1 hover:text-blue-400 transition"
+                >
+                  <Heart size={20} />
+                  {favoriteCount > 0 && (
+                    <span className="absolute -top-2 -right-2 bg-pink-600 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
+                      {favoriteCount}
+                    </span>
+                  )}
+                </Link>
+
+                {/* Carrito */}
                 <Link
                   href="/carrito"
-                  className="flex items-center space-x-1 hover:text-blue-400 transition relative"
+                  className="relative flex items-center space-x-1 hover:text-blue-400 transition"
                 >
                   <ShoppingCart size={20} />
                   <span>Carrito</span>
                   {itemCount > 0 && (
-                    <span className="absolute -top-2 -right-2 bg-red-600 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                    <span className="absolute -top-2 -right-2 bg-red-600 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
                       {itemCount}
                     </span>
                   )}
@@ -70,7 +81,7 @@ export default function Navbar() {
 
                 {/* Logout */}
                 <button
-                  onClick={() => signOut({ callbackUrl: "/login" })}
+                  onClick={() => signOut()}
                   className="flex items-center space-x-1 hover:text-red-400 transition"
                 >
                   <LogOut size={20} />
@@ -79,16 +90,15 @@ export default function Navbar() {
               </>
             ) : (
               <>
-                {/* Usuario no logueado */}
                 <Link
                   href="/login"
-                  className="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded transition"
+                  className="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded transition"
                 >
                   Iniciar Sesión
                 </Link>
                 <Link
                   href="/register"
-                  className="px-4 py-2 border border-blue-600 hover:bg-blue-600 rounded transition"
+                  className="border border-blue-600 hover:bg-blue-600 px-4 py-2 rounded transition"
                 >
                   Registrarse
                 </Link>

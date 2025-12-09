@@ -2,8 +2,9 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { ShoppingCart } from "lucide-react";
+import { ShoppingCart, Heart } from "lucide-react";
 import { useCart } from "@/contexts/CartContext";
+import { useFavorites } from "@/contexts/FavoritesContext";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
@@ -28,6 +29,7 @@ export default function ProductCard({
   categoria,
 }: ProductCardProps) {
   const { addItem } = useCart();
+  const { addFavorite, removeFavorite, isFavorite } = useFavorites();
   const { data: session } = useSession();
   const router = useRouter();
 
@@ -57,8 +59,49 @@ export default function ProductCard({
     });
   };
 
+  const handleToggleFavorite = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    if (!session) {
+      toast.error("Debes iniciar sesión para agregar a favoritos", {
+        icon: "🔒",
+        duration: 4000,
+      });
+      setTimeout(() => {
+        router.push("/login");
+      }, 1500);
+      return;
+    }
+
+    if (isFavorite(id)) {
+      removeFavorite(id);
+      toast.success("Eliminado de favoritos", { icon: "💔" });
+    } else {
+      addFavorite({ id, nombre, precio, imagen, stock, categoria });
+      toast.success("Agregado a favoritos", { icon: "❤️" });
+    }
+  };
+
+  const esFavorito = isFavorite(id);
+
   return (
-    <div className="bg-white rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 overflow-hidden group">
+    <div className="bg-white rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 overflow-hidden group relative">
+      {/* Botón de favorito */}
+      <button
+        onClick={handleToggleFavorite}
+        className={`absolute top-3 left-3 z-10 p-2 rounded-full transition-all duration-300 ${
+          esFavorito
+            ? "bg-pink-600 text-white"
+            : "bg-white/80 text-gray-600 hover:bg-pink-600 hover:text-white"
+        }`}
+      >
+        <Heart
+          size={20}
+          fill={esFavorito ? "currentColor" : "none"}
+        />
+      </button>
+
       {/* Imagen con link a detalle */}
       <Link href={`/producto/${id}`}>
         <div className="relative h-64 bg-gray-200 overflow-hidden cursor-pointer">

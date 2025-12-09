@@ -3,6 +3,7 @@ import "./globals.css";
 import Providers from "@/components/Providers";
 import Navbar from "@/components/Navbar";
 import { CartProvider } from "@/contexts/CartContext";
+import { FavoritesProvider } from "@/contexts/FavoritesContext";
 import { Toaster } from "react-hot-toast";
 
 export const metadata: Metadata = {
@@ -19,11 +20,13 @@ export default function RootLayout({
     <html lang="es">
       <body className="font-sans antialiased">
         <Providers>
-          <CartProvider>
-            <Navbar />
-            <main className="min-h-screen bg-gray-50">{children}</main>
-            <Toaster position="bottom-right" />
-          </CartProvider>
+          <FavoritesProvider>
+            <CartProvider>
+              <Navbar />
+              <main className="min-h-screen bg-gray-50">{children}</main>
+              <Toaster position="bottom-right" />
+            </CartProvider>
+          </FavoritesProvider>
         </Providers>
       </body>
     </html>

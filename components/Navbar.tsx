@@ -2,16 +2,15 @@
 
 import Link from "next/link";
 import { useSession, signOut } from "next-auth/react";
-import { ShoppingCart, Settings, LogOut, Heart, Package, Moon, Sun } from "lucide-react";
+import { ShoppingCart, Settings, LogOut, Heart, Package } from "lucide-react";
 import { useCart } from "@/contexts/CartContext";
 import { useFavorites } from "@/contexts/FavoritesContext";
-import { useTheme } from "@/contexts/ThemeContext";
+import ThemeToggle from "./ThemeToggle";
 
 export default function Navbar() {
   const { data: session } = useSession();
   const { itemCount } = useCart();
   const { favoriteCount } = useFavorites();
-  const { theme, toggleTheme } = useTheme();
 
   return (
     <nav className="bg-gray-900 dark:bg-gray-950 text-white shadow-lg transition-colors duration-200">
@@ -20,7 +19,7 @@ export default function Navbar() {
           {/* Logo */}
           <Link
             href="/"
-            className="text-2xl font-bold text-blue-400 hover:text-blue-300 transition"
+            className="text-2xl font-bold text-blue-400 hover:text-blue-300 transition font-display tracking-wide"
           >
             TechStore
           </Link>
@@ -35,13 +34,7 @@ export default function Navbar() {
             </Link>
 
             {/* Toggle Dark Mode */}
-            <button
-              onClick={toggleTheme}
-              className="p-2 rounded-lg hover:bg-gray-800 dark:hover:bg-gray-900 transition"
-              aria-label="Cambiar tema"
-            >
-              {theme === "dark" ? <Sun size={20} /> : <Moon size={20} />}
-            </button>
+            <ThemeToggle />
 
             {session ? (
               <>

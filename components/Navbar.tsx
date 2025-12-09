@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useSession, signOut } from "next-auth/react";
-import { ShoppingCart, Settings, LogOut, Heart } from "lucide-react";
+import { ShoppingCart, Settings, LogOut, Heart, Package } from "lucide-react";
 import { useCart } from "@/contexts/CartContext";
 import { useFavorites } from "@/contexts/FavoritesContext";
 
@@ -51,6 +51,15 @@ export default function Navbar() {
                     <span>Admin</span>
                   </Link>
                 )}
+
+                {/* Mis Compras */}
+                <Link
+                  href="/mis-compras"
+                  className="flex items-center space-x-1 hover:text-blue-400 transition"
+                >
+                  <Package size={20} />
+                  <span>Mis Compras</span>
+                </Link>
 
                 {/* Favoritos */}
                 <Link

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Plus, Edit, Trash2, Search, TrendingUp } from "lucide-react";
+import { Plus, Edit, Trash2, Search, TrendingUp, Package } from "lucide-react";
 import Modal from "@/components/Modal";
 import Image from "next/image";
 import Link from "next/link";
@@ -207,7 +207,16 @@ export default function AdminPage() {
               <TrendingUp size={20} />
               <span>Estadísticas</span>
             </Link>
-            
+
+                          // En la sección de botones, después del botón de Estadísticas:
+              <Link
+                href="/admin/ordenes"
+                className="flex items-center space-x-2 bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg transition"
+              >
+                <Package size={20} />
+                <span>Órdenes</span>
+              </Link>
+                          
             <button
               onClick={() => handleOpenModal()}
               className="flex items-center space-x-2 bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg transition"

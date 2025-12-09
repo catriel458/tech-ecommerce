@@ -7,7 +7,6 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// Modelo de Usuario
 model User {
   id        String   @id @default(cuid())
   email     String   @unique
@@ -16,9 +15,8 @@ model User {
   role      Role     @default(USER)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  
-  // Relación con carrito
   carrito   CarritoItem[]
+  ordenes   Orden[]
 }
 
 enum Role {
@@ -26,7 +24,6 @@ enum Role {
   ADMIN
 }
 
-// Modelo de Producto
 model Producto {
   id          String   @id @default(cuid())
   nombre      String
@@ -37,9 +34,8 @@ model Producto {
   categoria   Categoria
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
-  
-  // Relación con items del carrito
   carritoItems CarritoItem[]
+  ordenItems   OrdenItem[]
 }
 
 enum Categoria {
@@ -63,19 +59,44 @@ enum Categoria {
   ACCESORIOS
 }
 
-// Modelo de Item del Carrito
 model CarritoItem {
   id         String   @id @default(cuid())
   cantidad   Int      @default(1)
-  
-  // Relaciones
   userId     String
   user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
   productoId String
   producto   Producto @relation(fields: [productoId], references: [id], onDelete: Cascade)
-  
   createdAt  DateTime @default(now())
   
   @@unique([userId, productoId])
+}
+
+model Orden {
+  id        String      @id @default(cuid())
+  total     Float
+  estado    EstadoOrden @default(PENDIENTE)
+  userId    String
+  user      User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  items     OrdenItem[]
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+}
+
+enum EstadoOrden {
+  PENDIENTE
+  PROCESANDO
+  ENVIADO
+  ENTREGADO
+  CANCELADO
+}
+
+model OrdenItem {
+  id            String   @id @default(cuid())
+  cantidad      Int
+  precioUnitario Float
+  ordenId       String
+  orden         Orden    @relation(fields: [ordenId], references: [id], onDelete: Cascade)
+  productoId    String
+  producto      Producto @relation(fields: [productoId], references: [id])
+  createdAt     DateTime @default(now())
 }

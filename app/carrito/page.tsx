@@ -6,6 +6,7 @@ import Link from "next/link";
 import { Trash2, Plus, Minus, ShoppingBag, ArrowLeft } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
 import toast from "react-hot-toast";
 
 export default function CarritoPage() {
@@ -13,6 +14,7 @@ export default function CarritoPage() {
     useCart();
   const { data: session } = useSession();
   const router = useRouter();
+  const [loading, setLoading] = useState(false);
 
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat("es-AR", {
@@ -21,16 +23,44 @@ export default function CarritoPage() {
     }).format(price);
   };
 
-  const handleCheckout = () => {
+  const handleCheckout = async () => {
     if (!session) {
       router.push("/login");
       return;
     }
-    // TODO: Implementar proceso de compra
-    toast.success("Funcionalidad de compra en desarrollo", {
-      icon: "🚧",
-      duration: 3000,
-    });
+
+    setLoading(true);
+
+    try {
+      const response = await fetch("/api/ordenes", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          items,
+          total,
+        }),
+      });
+
+      if (response.ok) {
+        const orden = await response.json();
+        clearCart();
+        toast.success("¡Compra realizada exitosamente!", {
+          icon: "🎉",
+          duration: 4000,
+        });
+        router.push(`/mis-compras`);
+      } else {
+        const error = await response.json();
+        toast.error(error.error || "Error al procesar la compra");
+      }
+    } catch (error) {
+      console.error("Error al procesar compra:", error);
+      toast.error("Error al procesar la compra");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleRemoveItem = (id: string, nombre: string) => {
@@ -91,12 +121,11 @@ export default function CarritoPage() {
               className="bg-white rounded-lg shadow-md p-4 flex items-center space-x-4"
             >
               {/* Imagen */}
-              <div className="relative h-24 w-24 flex-shrink-0 bg-gray-200 rounded">
-                <Image
+              <div className="relative h-24 w-24 flex-shrink-0 bg-gray-200 rounded overflow-hidden">
+                <img
                   src={item.imagen || "/placeholder-product.png"}
                   alt={item.nombre}
-                  fill
-                  className="object-cover rounded"
+                  className="w-full h-full object-cover"
                 />
               </div>
 
@@ -190,9 +219,19 @@ export default function CarritoPage() {
 
             <button
               onClick={handleCheckout}
-              className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 px-6 rounded-lg font-semibold transition mb-3"
+              disabled={loading || !session}
+              className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 px-6 rounded-lg font-semibold transition mb-3 disabled:bg-gray-400 disabled:cursor-not-allowed"
             >
-              {session ? "Proceder al pago" : "Iniciar sesión para comprar"}
+              {loading ? (
+                <span className="flex items-center justify-center">
+                  <div className="animate-spin rounded-full h-5 w-5 border-t-2 border-b-2 border-white mr-2"></div>
+                  Procesando...
+                </span>
+              ) : session ? (
+                "Finalizar Compra"
+              ) : (
+                "Iniciar sesión para comprar"
+              )}
             </button>
 
             <Link

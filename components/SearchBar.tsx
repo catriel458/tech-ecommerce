@@ -10,20 +10,34 @@ interface SearchBarProps {
   onSearch?: (query: string) => void;
 }
 
-const POPULAR_SEARCHES = [
-  "Procesadores Intel",
-  "Tarjetas gráficas RTX",
-  "Memoria RAM DDR5",
-  "Monitores gaming",
-  "Teclados mecánicos",
-];
-
 export default function SearchBar({ value, onChange, onSearch }: SearchBarProps) {
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [suggestions, setSuggestions] = useState<string[]>([]);
+  const [popularProducts, setPopularProducts] = useState<string[]>([]);
   const { searchHistory, addToHistory, removeFromHistory, clearHistory } =
     useSearch();
   const searchRef = useRef<HTMLDivElement>(null);
+
+  // Cargar productos populares al montar
+  useEffect(() => {
+    fetchPopularProducts();
+  }, []);
+
+  const fetchPopularProducts = async () => {
+    try {
+      const response = await fetch("/api/productos");
+      const productos = await response.json();
+      
+      // Obtener nombres únicos de productos (primeros 5)
+      const productNames = productos
+        .slice(0, 5)
+        .map((p: any) => p.nombre);
+      
+      setPopularProducts(productNames);
+    } catch (error) {
+      console.error("Error al cargar productos populares:", error);
+    }
+  };
 
   // Cerrar sugerencias al hacer click fuera
   useEffect(() => {
@@ -42,14 +56,32 @@ export default function SearchBar({ value, onChange, onSearch }: SearchBarProps)
 
   // Generar sugerencias basadas en el input
   useEffect(() => {
-    if (value.trim()) {
-      const filtered = POPULAR_SEARCHES.filter((item) =>
-        item.toLowerCase().includes(value.toLowerCase())
-      );
-      setSuggestions(filtered);
-    } else {
-      setSuggestions([]);
-    }
+    const fetchSuggestions = async () => {
+      if (value.trim().length > 2) {
+        try {
+          const response = await fetch(`/api/productos?busqueda=${encodeURIComponent(value)}`);
+          const productos = await response.json();
+          
+          // Obtener nombres únicos (máximo 5)
+          const uniqueNames = Array.from(
+            new Set(productos.slice(0, 5).map((p: any) => p.nombre))
+          ) as string[];
+          
+          setSuggestions(uniqueNames);
+        } catch (error) {
+          console.error("Error al buscar sugerencias:", error);
+          setSuggestions([]);
+        }
+      } else {
+        setSuggestions([]);
+      }
+    };
+
+    const debounce = setTimeout(() => {
+      fetchSuggestions();
+    }, 300);
+
+    return () => clearTimeout(debounce);
   }, [value]);
 
   const handleSelectSuggestion = (query: string) => {
@@ -144,7 +176,7 @@ export default function SearchBar({ value, onChange, onSearch }: SearchBarProps)
           {suggestions.length > 0 && value && (
             <div className="p-4 border-b border-gray-200 dark:border-gray-700">
               <div className="text-sm text-gray-600 dark:text-gray-400 mb-2 font-semibold">
-                Sugerencias
+                Productos sugeridos
               </div>
               <div className="space-y-1">
                 {suggestions.map((suggestion, index) => (
@@ -161,22 +193,22 @@ export default function SearchBar({ value, onChange, onSearch }: SearchBarProps)
             </div>
           )}
 
-          {/* Búsquedas populares */}
-          {!value && (
+          {/* Productos populares (cuando no hay búsqueda) */}
+          {!value && popularProducts.length > 0 && (
             <div className="p-4">
               <div className="flex items-center space-x-2 text-sm text-gray-600 dark:text-gray-400 mb-3">
                 <TrendingUp size={16} />
-                <span className="font-semibold">Búsquedas populares</span>
+                <span className="font-semibold">Productos destacados</span>
               </div>
               <div className="space-y-1">
-                {POPULAR_SEARCHES.map((query, index) => (
+                {popularProducts.map((product, index) => (
                   <button
                     key={index}
-                    onClick={() => handleSelectSuggestion(query)}
+                    onClick={() => handleSelectSuggestion(product)}
                     className="w-full text-left px-3 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded text-sm text-gray-700 dark:text-gray-300"
                   >
                     <TrendingUp size={14} className="inline mr-2 text-blue-500" />
-                    {query}
+                    {product}
                   </button>
                 ))}
               </div>

@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import ProductCard from "@/components/ProductCard";
-import { Search, SlidersHorizontal, ChevronLeft, ChevronRight } from "lucide-react";
+import { Search, SlidersHorizontal, ChevronLeft, ChevronRight, ArrowUpDown } from "lucide-react";
 
 interface Producto {
   id: string;
@@ -12,6 +12,7 @@ interface Producto {
   stock: number;
   imagen: string | null;
   categoria: string;
+  createdAt?: string;
 }
 
 const CATEGORIAS = [
@@ -32,6 +33,15 @@ const CATEGORIAS = [
 
 const ITEMS_PER_PAGE = 12;
 
+const OPCIONES_ORDENAMIENTO = [
+  { value: "recientes", label: "Más recientes" },
+  { value: "precio-asc", label: "Precio: Menor a mayor" },
+  { value: "precio-desc", label: "Precio: Mayor a menor" },
+  { value: "nombre-asc", label: "Nombre: A-Z" },
+  { value: "nombre-desc", label: "Nombre: Z-A" },
+  { value: "stock-desc", label: "Mayor stock" },
+];
+
 export default function HomePage() {
   const [productos, setProductos] = useState<Producto[]>([]);
   const [loading, setLoading] = useState(true);
@@ -40,6 +50,7 @@ export default function HomePage() {
   const [precioMin, setPrecioMin] = useState("");
   const [precioMax, setPrecioMax] = useState("");
   const [showFilters, setShowFilters] = useState(false);
+  const [ordenamiento, setOrdenamiento] = useState("recientes");
   
   // Paginación
   const [currentPage, setCurrentPage] = useState(1);
@@ -73,10 +84,35 @@ export default function HomePage() {
     return () => clearTimeout(debounce);
   }, [categoriaSeleccionada, busqueda, precioMin, precioMax]);
 
+  // Función de ordenamiento
+  const ordenarProductos = (productos: Producto[]) => {
+    const productosOrdenados = [...productos];
+
+    switch (ordenamiento) {
+      case "precio-asc":
+        return productosOrdenados.sort((a, b) => a.precio - b.precio);
+      case "precio-desc":
+        return productosOrdenados.sort((a, b) => b.precio - a.precio);
+      case "nombre-asc":
+        return productosOrdenados.sort((a, b) => a.nombre.localeCompare(b.nombre));
+      case "nombre-desc":
+        return productosOrdenados.sort((a, b) => b.nombre.localeCompare(a.nombre));
+      case "stock-desc":
+        return productosOrdenados.sort((a, b) => b.stock - a.stock);
+      case "recientes":
+      default:
+        return productosOrdenados; // Ya vienen ordenados por fecha del backend
+    }
+  };
+
+  // Aplicar ordenamiento
+  const productosOrdenados = ordenarProductos(productos);
+
+  // Calcular productos para la página actual
   const indexOfLastProduct = currentPage * ITEMS_PER_PAGE;
   const indexOfFirstProduct = indexOfLastProduct - ITEMS_PER_PAGE;
-  const currentProducts = productos.slice(indexOfFirstProduct, indexOfLastProduct);
-  const totalPages = Math.ceil(productos.length / ITEMS_PER_PAGE);
+  const currentProducts = productosOrdenados.slice(indexOfFirstProduct, indexOfLastProduct);
+  const totalPages = Math.ceil(productosOrdenados.length / ITEMS_PER_PAGE);
 
   const paginate = (pageNumber: number) => {
     setCurrentPage(pageNumber);
@@ -205,18 +241,36 @@ export default function HomePage() {
 
           {/* Grid de productos */}
           <div className="lg:col-span-3">
-            {/* Header de resultados */}
-            <div className="flex items-center justify-between mb-6 bg-white rounded-lg shadow-sm p-4">
-              <div>
-                <p className="text-gray-900 font-semibold">
-                  {productos.length} producto{productos.length !== 1 ? "s" : ""}{" "}
-                  encontrado{productos.length !== 1 ? "s" : ""}
-                </p>
-                {totalPages > 1 && (
-                  <p className="text-sm text-gray-500">
-                    Página {currentPage} de {totalPages}
+            {/* Header de resultados con ordenamiento */}
+            <div className="bg-white rounded-lg shadow-sm p-4 mb-6">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                <div>
+                  <p className="text-gray-900 font-semibold">
+                    {productosOrdenados.length} producto{productosOrdenados.length !== 1 ? "s" : ""}{" "}
+                    encontrado{productosOrdenados.length !== 1 ? "s" : ""}
                   </p>
-                )}
+                  {totalPages > 1 && (
+                    <p className="text-sm text-gray-500">
+                      Página {currentPage} de {totalPages}
+                    </p>
+                  )}
+                </div>
+
+                {/* Selector de ordenamiento */}
+                <div className="flex items-center space-x-2">
+                  <ArrowUpDown className="text-gray-600" size={20} />
+                  <select
+                    value={ordenamiento}
+                    onChange={(e) => setOrdenamiento(e.target.value)}
+                    className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white text-gray-700 font-medium cursor-pointer"
+                  >
+                    {OPCIONES_ORDENAMIENTO.map((opcion) => (
+                      <option key={opcion.value} value={opcion.value}>
+                        {opcion.label}
+                      </option>
+                    ))}
+                  </select>
+                </div>
               </div>
             </div>
 

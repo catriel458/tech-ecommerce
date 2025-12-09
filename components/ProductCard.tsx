@@ -86,25 +86,22 @@ export default function ProductCard({
   const esFavorito = isFavorite(id);
 
   return (
-    <div className="bg-white rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 overflow-hidden group relative">
+    <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 overflow-hidden border border-gray-200 dark:border-gray-700 group relative">
       {/* Botón de favorito */}
       <button
         onClick={handleToggleFavorite}
         className={`absolute top-3 left-3 z-10 p-2 rounded-full transition-all duration-300 ${
           esFavorito
             ? "bg-pink-600 text-white"
-            : "bg-white/80 text-gray-600 hover:bg-pink-600 hover:text-white"
+            : "bg-white/80 dark:bg-gray-700/80 text-gray-600 dark:text-gray-300 hover:bg-pink-600 hover:text-white"
         }`}
       >
-        <Heart
-          size={20}
-          fill={esFavorito ? "currentColor" : "none"}
-        />
+        <Heart size={20} fill={esFavorito ? "currentColor" : "none"} />
       </button>
 
       {/* Imagen con link a detalle */}
       <Link href={`/producto/${id}`}>
-        <div className="relative h-64 bg-gray-200 overflow-hidden cursor-pointer">
+        <div className="relative h-64 bg-gray-200 dark:bg-gray-700 overflow-hidden cursor-pointer">
           <Image
             src={imagen || "/placeholder-product.png"}
             alt={nombre}
@@ -126,21 +123,21 @@ export default function ProductCard({
       {/* Contenido */}
       <div className="p-4">
         <Link href={`/producto/${id}`}>
-          <h3 className="text-lg font-semibold text-gray-900 mb-2 line-clamp-1 hover:text-blue-600 transition cursor-pointer">
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2 line-clamp-1 hover:text-blue-600 dark:hover:text-blue-400 transition cursor-pointer">
             {nombre}
           </h3>
         </Link>
-        <p className="text-gray-600 text-sm mb-4 line-clamp-2">
+        <p className="text-gray-600 dark:text-gray-400 text-sm mb-4 line-clamp-2">
           {descripcion}
         </p>
 
         {/* Precio y Stock */}
         <div className="flex items-center justify-between mb-4">
           <div>
-            <p className="text-2xl font-bold text-blue-600">
+            <p className="text-2xl font-bold text-blue-600 dark:text-blue-400">
               {formatPrice(precio)}
             </p>
-            <p className="text-xs text-gray-500">
+            <p className="text-xs text-gray-500 dark:text-gray-400">
               {stock > 0 ? `Stock: ${stock}` : "Sin stock"}
             </p>
           </div>

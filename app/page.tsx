@@ -2,7 +2,8 @@
 
 import { useEffect, useState } from "react";
 import ProductCard from "@/components/ProductCard";
-import { Search, SlidersHorizontal, ChevronLeft, ChevronRight, ArrowUpDown } from "lucide-react";
+import SearchBar from "@/components/SearchBar";
+import { SlidersHorizontal, ChevronLeft, ChevronRight, ArrowUpDown } from "lucide-react";
 
 interface Producto {
   id: string;
@@ -101,7 +102,7 @@ export default function HomePage() {
         return productosOrdenados.sort((a, b) => b.stock - a.stock);
       case "recientes":
       default:
-        return productosOrdenados; // Ya vienen ordenados por fecha del backend
+        return productosOrdenados;
     }
   };
 
@@ -120,40 +121,28 @@ export default function HomePage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-200">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Hero Section */}
         <div className="mb-12 text-center">
-          <h1 className="text-5xl md:text-6xl font-extrabold text-gray-900 mb-4">
+          <h1 className="text-5xl md:text-6xl font-extrabold text-gray-900 dark:text-white mb-4">
             Hardware Premium
           </h1>
-          <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+          <p className="text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
             Los mejores componentes para armar tu PC ideal
           </p>
         </div>
 
         {/* Barra de búsqueda principal */}
         <div className="mb-8 max-w-4xl mx-auto">
-          <div className="relative">
-            <Search
-              className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400"
-              size={24}
-            />
-            <input
-              type="text"
-              placeholder="Busca procesadores, tarjetas gráficas, monitores..."
-              value={busqueda}
-              onChange={(e) => setBusqueda(e.target.value)}
-              className="w-full pl-12 pr-4 py-4 text-lg border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
-            />
-          </div>
+          <SearchBar value={busqueda} onChange={setBusqueda} />
         </div>
 
         {/* Botón de filtros móvil */}
         <div className="lg:hidden mb-6">
           <button
             onClick={() => setShowFilters(!showFilters)}
-            className="w-full flex items-center justify-center space-x-2 bg-white border border-gray-300 py-3 px-6 rounded-lg hover:bg-gray-50 transition"
+            className="w-full flex items-center justify-center space-x-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 py-3 px-6 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition"
           >
             <SlidersHorizontal size={20} />
             <span className="font-semibold">Filtros</span>
@@ -168,15 +157,15 @@ export default function HomePage() {
             } space-y-6`}
           >
             {/* Card de filtros */}
-            <div className="bg-white rounded-lg shadow-md p-6 sticky top-4">
+            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 sticky top-4">
               <div className="flex items-center space-x-2 mb-6">
-                <SlidersHorizontal className="text-blue-600" size={24} />
-                <h2 className="text-2xl font-bold text-gray-900">Filtros</h2>
+                <SlidersHorizontal className="text-blue-600 dark:text-blue-400" size={24} />
+                <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Filtros</h2>
               </div>
 
               {/* Categorías */}
               <div className="mb-6">
-                <label className="block text-sm font-semibold text-gray-700 mb-3">
+                <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">
                   Categoría
                 </label>
                 <div className="space-y-2">
@@ -187,7 +176,7 @@ export default function HomePage() {
                       className={`w-full text-left px-4 py-2.5 rounded-lg transition font-medium ${
                         categoriaSeleccionada === cat
                           ? "bg-blue-600 text-white"
-                          : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                          : "bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600"
                       }`}
                     >
                       {cat.replace(/_/g, " ")}
@@ -197,8 +186,8 @@ export default function HomePage() {
               </div>
 
               {/* Rango de precios */}
-              <div className="border-t pt-6">
-                <label className="block text-sm font-semibold text-gray-700 mb-3">
+              <div className="border-t border-gray-200 dark:border-gray-700 pt-6">
+                <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">
                   Rango de Precio
                 </label>
                 <div className="space-y-3">
@@ -207,14 +196,14 @@ export default function HomePage() {
                     placeholder="Precio mínimo"
                     value={precioMin}
                     onChange={(e) => setPrecioMin(e.target.value)}
-                    className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    className="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 dark:text-white"
                   />
                   <input
                     type="number"
                     placeholder="Precio máximo"
                     value={precioMax}
                     onChange={(e) => setPrecioMax(e.target.value)}
-                    className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    className="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 dark:text-white"
                   />
                 </div>
               </div>
@@ -231,7 +220,7 @@ export default function HomePage() {
                     setPrecioMin("");
                     setPrecioMax("");
                   }}
-                  className="w-full mt-6 py-2.5 border-2 border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition font-semibold"
+                  className="w-full mt-6 py-2.5 border-2 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition font-semibold"
                 >
                   Limpiar filtros
                 </button>
@@ -242,15 +231,15 @@ export default function HomePage() {
           {/* Grid de productos */}
           <div className="lg:col-span-3">
             {/* Header de resultados con ordenamiento */}
-            <div className="bg-white rounded-lg shadow-sm p-4 mb-6">
+            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-4 mb-6">
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div>
-                  <p className="text-gray-900 font-semibold">
+                  <p className="text-gray-900 dark:text-white font-semibold">
                     {productosOrdenados.length} producto{productosOrdenados.length !== 1 ? "s" : ""}{" "}
                     encontrado{productosOrdenados.length !== 1 ? "s" : ""}
                   </p>
                   {totalPages > 1 && (
-                    <p className="text-sm text-gray-500">
+                    <p className="text-sm text-gray-500 dark:text-gray-400">
                       Página {currentPage} de {totalPages}
                     </p>
                   )}
@@ -258,11 +247,11 @@ export default function HomePage() {
 
                 {/* Selector de ordenamiento */}
                 <div className="flex items-center space-x-2">
-                  <ArrowUpDown className="text-gray-600" size={20} />
+                  <ArrowUpDown className="text-gray-600 dark:text-gray-400" size={20} />
                   <select
                     value={ordenamiento}
                     onChange={(e) => setOrdenamiento(e.target.value)}
-                    className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white text-gray-700 font-medium cursor-pointer"
+                    className="px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 font-medium cursor-pointer"
                   >
                     {OPCIONES_ORDENAMIENTO.map((opcion) => (
                       <option key={opcion.value} value={opcion.value}>
@@ -278,17 +267,17 @@ export default function HomePage() {
             {loading ? (
               <div className="text-center py-20">
                 <div className="inline-block animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-blue-600"></div>
-                <p className="mt-4 text-gray-600 font-semibold">
+                <p className="mt-4 text-gray-600 dark:text-gray-400 font-semibold">
                   Cargando productos...
                 </p>
               </div>
             ) : currentProducts.length === 0 ? (
-              <div className="text-center py-20 bg-white rounded-lg shadow-sm">
+              <div className="text-center py-20 bg-white dark:bg-gray-800 rounded-lg shadow-sm">
                 <div className="text-6xl mb-4">🔍</div>
-                <h3 className="text-2xl font-bold text-gray-900 mb-2">
+                <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
                   No se encontraron productos
                 </h3>
-                <p className="text-gray-600">
+                <p className="text-gray-600 dark:text-gray-400">
                   Intenta ajustar los filtros o buscar algo diferente
                 </p>
               </div>
@@ -308,7 +297,7 @@ export default function HomePage() {
                       <button
                         onClick={() => paginate(currentPage - 1)}
                         disabled={currentPage === 1}
-                        className="p-2 rounded-lg bg-white border border-gray-300 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 transition"
+                        className="p-2 rounded-lg bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 dark:hover:bg-gray-700 transition"
                       >
                         <ChevronLeft size={20} />
                       </button>
@@ -329,7 +318,7 @@ export default function HomePage() {
                                 className={`px-4 py-2 rounded-lg font-semibold transition ${
                                   currentPage === number
                                     ? "bg-blue-600 text-white"
-                                    : "bg-white border border-gray-300 hover:bg-gray-50"
+                                    : "bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300"
                                 }`}
                               >
                                 {number}
@@ -353,7 +342,7 @@ export default function HomePage() {
                       <button
                         onClick={() => paginate(currentPage + 1)}
                         disabled={currentPage === totalPages}
-                        className="p-2 rounded-lg bg-white border border-gray-300 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 transition"
+                        className="p-2 rounded-lg bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 dark:hover:bg-gray-700 transition"
                       >
                         <ChevronRight size={20} />
                       </button>

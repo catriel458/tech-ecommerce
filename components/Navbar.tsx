@@ -19,7 +19,7 @@ export default function Navbar() {
           {/* Logo */}
           <Link
             href="/"
-            className="text-2xl font-bold text-blue-400 hover:text-blue-300 transition font-display tracking-wide"
+            className="text-2xl font-bold text-blue-400 hover:text-blue-300 transition"
           >
             TechStore
           </Link>
